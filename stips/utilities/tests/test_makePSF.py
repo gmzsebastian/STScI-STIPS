@@ -21,10 +21,8 @@ EPSF4 = np.array([[0.25, 0.5 , 0.5 , 0.5 , 0.25],
                   [0.5 , 1.  , 1.  , 1.  , 0.5 ],
                   [0.25, 0.5 , 0.5 , 0.5 , 0.25]])
 
-#Currently only an upscale of 4 is supported
 PSF_UPSCALE = 4
 
-#Size of PSF to be placed on image, depends on brightness 
 PSF_BOXSIZE = 44
 PSF_BRIGHT_BOXSIZE = 88
 PSF_EXTRA_BRIGHT_BOXSIZE = 176
@@ -39,18 +37,20 @@ rind = lambda x : np.round(x).astype(int)
 #Select the part of the data we'll use to construct the test PSF
 
 file = fits.open('psf_WFI_2.0.0_F129_sca01.fits')
+
 file_in = file[0].data[0]
 
 #Generate the test PSF using the make_epsf function from makePSF
 #We can now use this basic PSF as a comparative standard against which to check the makePSF code
-test_psf = makePSF.make_epsf(file_in)
+
+test_psf = makePSF.make_epsf(file[0].data[0])
 
 #Set a few basic variables for use in testing the bicubic function of makePSF
 
 ix = 1
 iy = 2
-fx = 3
-fy = 4
+fx = 0.25
+fy = 0.75
 
 #Generate both a bicubic interpolation (to see fractional light output) from the bicubic function,
 #and a fractional light output from the real_psf function
@@ -140,11 +140,11 @@ def test_bicubic():
     E1 = (test_psf[3,2]-A1)
     F1 = (test_psf[3,1]+test_psf[1,1]-2*A1)/2
     V1 = (A1
-        + B1*(3)
-        + C1*(4)
-        + D1*(3)**2
-        + E1*(3)*(4)
-        + F1*(4)**2)
+        + B1*(fx)
+        + C1*(fy)
+        + D1*(fx)**2
+        + E1*(fx)*(fy)
+        + F1*(fy)**2)
 
     # Lower Right Value
     A2 =  test_psf[2,2]
@@ -154,11 +154,11 @@ def test_bicubic():
     E2 =-(test_psf[3,1]-A2)
     F2 = (test_psf[3,2]+test_psf[1,2]-2*A2)/2
     V2 = (A2
-        + B2*(2)
-        + C2*(4)
-        + D2*(2)**2
-        + E2*(2)*(4)
-        + F2*(4)**2)
+        + B2*(fx-1)
+        + C2*(fy)
+        + D2*(fx-1)**2
+        + E2*(fx-1)*(fy)
+        + F2*(fy)**2)
 
     # Upper Left Value
     A3 =  test_psf[3,1]
@@ -168,11 +168,11 @@ def test_bicubic():
     E3 =-(test_psf[2,2]-A3)
     F3 = (test_psf[4,1]+test_psf[2,1]-2*A3)/2
     V3 = (A3
-        + B3*(3)
-        + C3*(3)
-        + D3*(3)**2
-        + E3*(3)*(3)
-        + F3*(3)**2)
+        + B3*(fx)
+        + C3*(fy-1)
+        + D3*(fx)**2
+        + E3*(fx)*(fy-1)
+        + F3*(fy-1)**2)
 
     # Upper Right Value
     A4 =  test_psf[3,2]
@@ -182,16 +182,16 @@ def test_bicubic():
     E4 = (test_psf[2,1]-A4)
     F4 = (test_psf[4,2]+test_psf[2,2]-2*A4)/2
     V4 = (A4
-        + B4*(2)
-        + C4*(3)
-        + D4*(2)**2
-        + E4*(2)*(3)
-        + F4*(3)**2)
+        + B4*(fx-1)
+        + C4*(fy-1)
+        + D4*(fx-1)**2
+        + E4*(fx-1)*(fy-1)
+        + F4*(fy-1)**2)
 
-    check_phot = ((-2)*(-3)*V1
-               + (3)*(-3)*V2
-               + (-2)*(4)*V3
-               + (3)*(4)*V4)
+    check_phot = ((1-fx)*(1-fy)*V1
+               + (fx)*(1-fy)*V2
+               + (1-fx)*(fy)*V3
+               + (fx)*(fy)*V4)
 
     #Check this calculated value against the value generated previously by the bicubic function.
 
@@ -205,8 +205,8 @@ def test_real_psf():
     dx = 10
     dy = 15
 
-    rx = 88 + dx*4
-    ry = 88 + dy*4
+    rx = 88 + 10*4
+    ry = 88 + 15*4
     ix_rpsf = int(rx)
     iy_rpsf = int(ry)
     fx_rpsf = rx-ix_rpsf # Pixel Phase
@@ -240,9 +240,9 @@ def test_interpolate():
     #This test is designed to test interpolations of input ePSFs in each quadrant
     #to ensure the calculations for each quadrant run correctly.
 
-    #Set the image size to the same size as the image generated in test_place_source, just for consistency's sake
+    #Get image size read in from test_psf
 
-    image_size = 512
+    image_size = file_in.shape[0]
 
     half_image = round(image_size/2)
 
@@ -254,8 +254,8 @@ def test_interpolate():
 
     #Set location to the lower left quadrant
 
-    xpix_ll = 236
-    ypix_ll = 236
+    xpix_ll = 68
+    ypix_ll = 68
 
     #Run interpolate_epsf using the test psf array, the set image size, and the specified coordinates for this quadrant.
 
@@ -274,8 +274,8 @@ def test_interpolate():
 
     #Set location to upper left quadrant
 
-    xpix_ul = 236
-    ypix_ul = 276
+    xpix_ul = 68
+    ypix_ul = 108
 
     #Run interpolate_epsf using the test psf array, the set image size, and the specified coordinates for this quadrant.
 
@@ -294,8 +294,8 @@ def test_interpolate():
 
     #Set location to lower right quadrant
 
-    xpix_lr = 276
-    ypix_lr = 236
+    xpix_lr = 108
+    ypix_lr = 68
 
     #Run interpolate_epsf using the test psf array, the set image size, and the specified coordinates for this quadrant.
 
@@ -314,8 +314,8 @@ def test_interpolate():
 
     #Set location to upper right quadrant.
 
-    xpix_ur = 276
-    ypix_ur = 276
+    xpix_ur = 108
+    ypix_ur = 108
 
     #Run interpolate_epsf using the test psf array, the set image size, and the specified coordinates for this quadrant.
 
