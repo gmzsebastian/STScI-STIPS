@@ -26,6 +26,10 @@ jobs:
             os: macos-latest
             python: 3.11
 
+          - name: Python Long
+            os: ubuntu-latest
+            python: 3.11
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
@@ -46,6 +50,12 @@ jobs:
       if: ${{ matrix.name != 'Python Long' }}
       run: |
         tox -e test
+
+    - name: Test slow tests with pytest
+      shell: bash -l {0}
+      if: ${{ matrix.name == 'Python Long' }}
+      run: |
+        tox -e test-all
 
   docs_test:
     name: "docs_test"

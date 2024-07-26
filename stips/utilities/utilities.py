@@ -115,7 +115,7 @@ def get_compressed_file(url, file_name, path="", dirs_to_remove=""):
             members = remove_subfolder(input_file, dirs_to_remove)
         else:
             members = input_file.getmembers()
-        input_file.extractall(path=path, members=members)
+        input_file.extractall(path=path, members=members, filter=None)
     os.remove(file_name)
 
 
