@@ -10,7 +10,7 @@ Version 2.3
 - Added support for F213 filter
 - Allow users to specify `psf_cache_location` in `addCatalogue` function.
 - Updated WebbPSF version to be >= 1.3
-- Constrained numpy version to be <2.0
+- Constrained numpy version < 2.0 given the conflict with Pandeia.
 - Updated documentation to reflect the fact STIPS creates L3 images.
 
 Version 2.2.1
