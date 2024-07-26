@@ -155,12 +155,12 @@ def bicubic(epsf, iy, ix, fx, fy):
     """
 
     # Lower Left Value
-    A1 = (epsf[iy,     ix])
-    B1 = (epsf[iy,   ix+1]-epsf[iy,   ix-1])/2
-    C1 = (epsf[iy+1,   ix]-epsf[iy-1,   ix])/2
-    D1 = (epsf[iy,   ix+1]+epsf[iy,   ix-1]-2*A1)/2
-    E1 = (epsf[iy+1, ix+1]-A1)
-    F1 = (epsf[iy+1,   ix]+epsf[iy-1,   ix]-2*A1)/2
+    A1 = (epsf[iy  , ix  ])
+    B1 = (epsf[iy  , ix+1]-epsf[iy  , ix-1]     )/2
+    C1 = (epsf[iy+1, ix  ]-epsf[iy-1, ix  ]     )/2
+    D1 = (epsf[iy  , ix+1]+epsf[iy  , ix-1]-2*A1)/2
+    E1 = (epsf[iy+1, ix+1]                 -  A1)
+    F1 = (epsf[iy+1, ix  ]+epsf[iy-1, ix  ]-2*A1)/2
     V1 = (A1
           + B1*(fx)
           + C1*(fy)

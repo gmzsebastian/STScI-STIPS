@@ -5,6 +5,14 @@ Release Notes
 Version History and Change Log
 ------------------------------
 
+Version 2.3
+=============
+- Added support for F213 filter
+- Allow users to specify `psf_cache_location` in `addCatalogue` function.
+- Updated WebbPSF version to be >= 1.3
+- Constrained numpy version to be <2.0
+- Updated documentation to reflect the fact STIPS creates L3 images.
+
 Version 2.2.1
 =============
 - Fixed a bug on the version of STIPS in __init__.py
